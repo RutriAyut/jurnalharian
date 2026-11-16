@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jurnal Habit Harian</title>
+<style>
+:root{--bg:#f6f3ec;--card:#fffdf8;--ink:#1f2a24;--mute:#6b766f;--line:#e4dfd2;--acc:#1f6b4f;--acc2:#d9efe4;--gold:#b7791f;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121815;--card:#1a221e;--ink:#e8ede9;--mute:#97a39b;--line:#2c3832;--acc:#5fcf9e;--acc2:#1f3a2e;--gold:#e8b04a}}
+:root[data-theme="dark"]{--bg:#121815;--card:#1a221e;--ink:#e8ede9;--mute:#97a39b;--line:#2c3832;--acc:#5fcf9e;--acc2:#1f3a2e;--gold:#e8b04a}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.7rem;margin:0 0 2px}
+.sub{color:var(--mute);margin:0 0 18px;font-size:.95rem}
+.sans,input,select,button,table{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.card h2{font-size:1.05rem;margin:0 0 4px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.pts{font-family:system-ui,sans-serif;font-size:.85rem;color:var(--gold);font-weight:600;white-space:nowrap}
+.hint{color:var(--mute);font-size:.85rem;margin:0 0 10px}
+.date{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+input,select{font-size:1rem;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);max-width:100%}
+button{font-size:.95rem;padding:9px 14px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);cursor:pointer}
+button.p{background:var(--acc);color:#fff;border-color:var(--acc)}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.sum div{background:var(--acc2);border-radius:12px;padding:12px;text-align:center}
+.sum b{display:block;font-size:1.4rem;color:var(--acc);font-family:system-ui,sans-serif}
+.sum span{font-size:.78rem;color:var(--mute)}
+.chk{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);cursor:pointer}
+.chk:first-of-type{border-top:0}
+.chk input{width:20px;height:20px;accent-color:var(--acc)}
+.chk em{margin-left:auto;font-style:normal;font-size:.85rem;color:var(--mute);font-family:system-ui,sans-serif}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row input[type=text]{flex:1;min-width:140px}
+.row input[type=number]{width:90px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{padding:7px 8px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--mute);font-weight:600}td:first-child,th:first-child{text-align:left}
+tr.cur td{background:var(--acc2)}
+td b{color:var(--acc)}
+.foot{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Jurnal Habit Harian</h1>
+<p class="sub">Catat habit, kumpulkan poin, jaga konsistensi.</p>
+
+<div class="date sans">
+<button id="prev" aria-label="Hari sebelumnya">‹</button>
+<input type="date" id="date">
+<button id="next" aria-label="Hari berikutnya">›</button>
+<button id="today">Hari ini</button>
+</div>
+
+<div class="sum">
+<div><b id="sDay">0</b><span>Poin hari ini</span></div>
+<div><b id="sTot">0</b><span>Total poin</span></div>
+<div><b id="sSed">0</b><span>Hari sedekah</span></div>
+</div>
+
+<div class="card">
+<h2>1. Sedekah Subuh <span class="pts" id="pSed">0 poin</span></h2>
+<p class="hint" id="hSed"></p>
+<label class="chk"><input type="checkbox" id="sed"><span>Sudah sedekah subuh</span><em id="eSed"></em></label>
+</div>
+
+<div class="card">
+<h2>2. Shalat / Dzikir <span class="pts" id="pPr">0 poin</span></h2>
+<p class="hint">Dzikir sebagai pengganti jika sedang berhalangan. 25 poin per waktu.</p>
+<div id="prayers"></div>
+</div>
+
+<div class="card">
+<h2>3. Tilawah <span class="pts" id="pTil">0 poin</span></h2>
+<p class="hint">Minimal 1 ayat per hari.</p>
+<select id="til">
+<option value="0">Belum tilawah (0)</option>
+<option value="10">1 ayat – 5 halaman (10)</option>
+<option value="15">6 – 19 halaman (15)</option>
+<option value="20">20 halaman atau lebih (20)</option>
+</select>
+</div>
+
+<div class="card">
+<h2>4. Workout <span class="pts" id="pWo">0 poin</span></h2>
+<p class="hint">Push-up, squat, jumping jacks, lari, renang, bersepeda.</p>
+<select id="wo">
+<option value="0">Belum workout (0)</option>
+<option value="10">5 – 10 menit (10)</option>
+<option value="20">Lebih dari 10 menit (20)</option>
+</select>
+</div>
+
+<div class="card">
+<h2>5. Challenge hari ini <span class="pts" id="pCh">0 poin</span></h2>
+<p class="hint">Isi sendiri nama challenge dan poinnya.</p>
+<div class="row">
+<input type="text" id="chName" placeholder="Nama challenge">
+<input type="number" id="chPts" min="0" placeholder="Poin">
+</div>
+<label class="chk"><input type="checkbox" id="chDone"><span>Challenge selesai</span></label>
+</div>
+
+<div class="card">
+<h2>Riwayat</h2>
+<div class="scroll"><table>
+<thead><tr><th>Tanggal</th><th>Sedekah</th><th>Shalat</th><th>Tilawah</th><th>Workout</th><th>Challenge</th><th>Total</th></tr></thead>
+<tbody id="hist"></tbody>
+</table></div>
+<div class="foot sans">
+<button id="exp">Salin data (JSON)</button>
+<button id="reset">Hapus semua data</button>
+</div>
+</div>
+</div>
+
+<script>
+const KEY="jurnal-habit-v1";
+const PR=["Subuh","Dzuhur","Ashar","Maghrib","Isya"];
+let S={days:{}};
+try{const r=localStorage.getItem(KEY);if(r)S=JSON.parse(r)||{days:{}}}catch(e){}
+const $=id=>document.getElementById(id);
+const iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)};
+let cur=iso(new Date());
+const blank=()=>({sed:false,pr:[0,0,0,0,0],til:0,wo:0,chName:"",chPts:0,chDone:false});
+const get=d=>S.days[d]||(S.days[d]=blank());
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+// sedekah: poin = 10 x urutan hari sedekah (hari bolong melanjutkan)
+function sedMap(){
+ const m={};let n=0;
+ Object.keys(S.days).sort().forEach(d=>{if(S.days[d].sed){n++;m[d]=n*10}});
+ return {m,n};
+}
+function calc(d,sm){
+ const x=S.days[d]||blank();
+ const sed=x.sed?(sm[d]||0):0;
+ const pr=x.pr.reduce((a,b)=>a+(b?25:0),0);
+ const til=+x.til||0,wo=+x.wo||0;
+ const ch=x.chDone?(+x.chPts||0):0;
+ return {sed,pr,til,wo,ch,total:sed+pr+til+wo+ch};
+}
+const fmt=n=>n.toLocaleString("id-ID");
+const fd=d=>new Date(d+"T00:00:00").toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"2-digit"});
+
+function build(){
+ $("prayers").innerHTML=PR.map((p,i)=>`<label class="chk"><input type="checkbox" data-i="${i}"><span>${p}</span><em>+25</em></label>`).join("");
+ $("prayers").querySelectorAll("input").forEach(el=>el.onchange=()=>{get(cur).pr[el.dataset.i]=el.checked?1:0;save();render()});
+}
+function render(){
+ $("date").value=cur;
+ const x=get(cur);
+ const {m,n}=sedMap();
+ // poin sedekah jika dicentang pada tanggal ini
+ let before=0;Object.keys(S.days).forEach(d=>{if(d<cur&&S.days[d].sed)before++});
+ const nextPts=(x.sed?m[cur]:(before+1)*10+0);
+ // jika belum dicentang, perkiraan poin = (jumlah sedekah sebelum tanggal ini + 1) x 10
+ $("sed").checked=x.sed;
+ $("eSed").textContent="+"+fmt(x.sed?m[cur]:(before+1)*10);
+ $("hSed").textContent=`Sedekah ke-${x.sed?Object.keys(m).sort().indexOf(cur)+1:before+1} = ${fmt((x.sed?Object.keys(m).sort().indexOf(cur)+1:before+1)*10)} poin. Hari bolong tidak mengulang dari awal.`;
+ $("prayers").querySelectorAll("input").forEach((el,i)=>el.checked=!!x.pr[i]);
+ $("til").value=x.til;$("wo").value=x.wo;
+ $("chName").value=x.chName;$("chPts").value=x.chPts||"";$("chDone").checked=x.chDone;
+ const c=calc(cur,m);
+ $("pSed").textContent=c.sed+" poin";$("pPr").textContent=c.pr+" poin";
+ $("pTil").textContent=c.til+" poin";$("pWo").textContent=c.wo+" poin";$("pCh").textContent=c.ch+" poin";
+ $("sDay").textContent=fmt(c.total);
+ let tot=0;
+ const dates=Object.keys(S.days).sort();
+ dates.forEach(d=>tot+=calc(d,m).total);
+ $("sTot").textContent=fmt(tot);$("sSed").textContent=n;
+ $("hist").innerHTML=dates.slice().reverse().map(d=>{const r=calc(d,m);
+  return `<tr class="${d===cur?"cur":""}" data-d="${d}" style="cursor:pointer"><td>${fd(d)}</td><td>${r.sed}</td><td>${r.pr}</td><td>${r.til}</td><td>${r.wo}</td><td>${r.ch}</td><td><b>${fmt(r.total)}</b></td></tr>`}).join("")||`<tr><td colspan="7">Belum ada data.</td></tr>`;
+ $("hist").querySelectorAll("tr[data-d]").forEach(t=>t.onclick=()=>{cur=t.dataset.d;render();scrollTo(0,0)});
+}
+function upd(f){f(get(cur));save();render()}
+$("sed").onchange=e=>upd(x=>x.sed=e.target.checked);
+$("til").onchange=e=>upd(x=>x.til=+e.target.value);
+$("wo").onchange=e=>upd(x=>x.wo=+e.target.value);
+$("chName").onchange=e=>upd(x=>x.chName=e.target.value);
+$("chPts").onchange=e=>upd(x=>x.chPts=Math.max(0,+e.target.value||0));
+$("chDone").onchange=e=>upd(x=>x.chDone=e.target.checked);
+const shift=k=>{const d=new Date(cur+"T00:00:00");d.setDate(d.getDate()+k);cur=iso(d);render()};
+$("prev").onclick=()=>shift(-1);$("next").onclick=()=>shift(1);
+$("today").onclick=()=>{cur=iso(new Date());render()};
+$("date").onchange=e=>{if(e.target.value){cur=e.target.value;render()}};
+$("exp").onclick=async()=>{try{await navigator.clipboard.writeText(JSON.stringify(S,null,1));$("exp").textContent="Tersalin"}catch(e){$("exp").textContent="Gagal menyalin"}setTimeout(()=>$("exp").textContent="Salin data (JSON)",1500)};
+$("reset").onclick=()=>{if(confirm("Hapus semua data jurnal?")){S={days:{}};save();render()}};
+build();render();
+</script>
+</body>
+</html>
